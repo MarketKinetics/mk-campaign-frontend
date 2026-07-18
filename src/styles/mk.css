@@ -1,0 +1,113 @@
+/* Market Kinetics — Design System v1 (from MK_Design_System.md)
+   Platform constants shared across modules; --mk-accent is MK Campaign's amber. */
+
+:root {
+  /* platform palette */
+  --mk-navy:   #0B1B2E;
+  --mk-navy-2: #12263C;
+  --mk-cream:  #F5F1E8;
+  --mk-white:  #FFFFFF;
+  --mk-ink:    #1A2230;
+  --mk-khaki:  #8A8172;
+  --mk-grey:   #6B7A8D;
+  --mk-border: #E4DFD3;
+
+  /* MK Campaign accent — amber/gold (action/output). Nudged slightly gold to
+     avoid colliding with the semantic 'geographic' data tag (per design doc). */
+  --mk-accent: #E3B23C;
+  --mk-accent-ink: #6E5310;      /* accent text on light tint */
+  --mk-accent-tint: rgba(227,178,60,0.12);
+
+  --mk-radius: 16px;
+  --mk-radius-btn: 10px;
+  --mk-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 8px 24px rgba(11,27,46,0.05);
+
+  --mk-font: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --mk-mono: "JetBrains Mono", "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+}
+
+* { box-sizing: border-box; }
+html, body, #root { margin: 0; padding: 0; }
+body { font-family: var(--mk-font); color: var(--mk-ink); background: var(--mk-cream); -webkit-font-smoothing: antialiased; }
+
+/* ---- bands ---- */
+.mk-navy-band { background: radial-gradient(120% 90% at 50% 8%, var(--mk-navy-2) 0%, var(--mk-navy) 52%); color: #E8EEF4; }
+.mk-cream-band { background: var(--mk-cream); color: var(--mk-ink); }
+
+/* ---- type ---- */
+.mk-display { font-size: clamp(34px, 4.6vw, 60px); font-weight: 700; letter-spacing: -0.02em; line-height: 1.02; margin: 0; }
+.mk-h1 { font-size: clamp(28px, 3.4vw, 40px); font-weight: 700; letter-spacing: -0.015em; line-height: 1.1; margin: 0; }
+.mk-h2 { font-size: 22px; font-weight: 600; letter-spacing: -0.01em; margin: 0; }
+.mk-accent-phrase { color: var(--mk-accent); }
+.mk-sub { font-size: clamp(15px, 1.35vw, 18px); color: var(--mk-grey); line-height: 1.55; font-weight: 400; }
+.mk-eyebrow { text-transform: uppercase; letter-spacing: 0.09em; font-size: 11px; font-weight: 600; color: var(--mk-khaki); }
+.mk-mono { font-family: var(--mk-mono); }
+
+/* on navy, eyebrow + sub lighten */
+.mk-navy-band .mk-sub { color: #9DB0C4; }
+.mk-navy-band .mk-eyebrow { color: #7E93A8; }
+
+/* ---- pill badge (Intel-style hero badge) ---- */
+.mk-pill-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 18px; border-radius: 999px;
+  border: 1px solid rgba(245,184,65,0.35); background: rgba(245,184,65,0.08);
+  color: var(--mk-accent); font-size: 14px; font-weight: 500;
+}
+.mk-pill-badge .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--mk-accent); }
+
+/* ---- buttons ---- */
+.mk-btn { font-family: var(--mk-font); font-size: 16px; font-weight: 600; border-radius: var(--mk-radius-btn);
+  padding: 14px 26px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 10px;
+  transition: transform .08s ease, filter .15s ease; }
+.mk-btn:active { transform: translateY(1px); }
+.mk-btn-primary { background: var(--mk-accent); color: #241a05; }
+.mk-btn-primary:hover { filter: brightness(1.05); }
+.mk-btn-primary:disabled { background: #cbb98e; color: #6b6350; cursor: not-allowed; filter: none; }
+.mk-btn-ghost { background: transparent; color: #cfd8e2; border: 1px solid rgba(255,255,255,0.18); }
+.mk-btn-ghost:hover { border-color: rgba(255,255,255,0.35); }
+.mk-btn-ghost-ink { background: transparent; color: var(--mk-grey); border: 1px solid var(--mk-border); }
+
+/* ---- cards ---- */
+.mk-card { background: var(--mk-white); border: 1px solid var(--mk-border); border-radius: var(--mk-radius);
+  box-shadow: var(--mk-shadow); padding: 26px; }
+
+/* ---- form controls ---- */
+.mk-label { display: block; font-size: 13px; font-weight: 600; color: var(--mk-ink); margin-bottom: 6px; }
+.mk-hint { font-size: 12px; color: var(--mk-grey); margin-top: 4px; line-height: 1.4; }
+.mk-input, .mk-select {
+  width: 100%; font-family: var(--mk-font); font-size: 15px; color: var(--mk-ink);
+  padding: 11px 13px; border: 1px solid var(--mk-border); border-radius: 10px; background: #fff; outline: none;
+  transition: border-color .12s ease, box-shadow .12s ease;
+}
+.mk-input:focus, .mk-select:focus { border-color: var(--mk-accent); box-shadow: 0 0 0 3px var(--mk-accent-tint); }
+.mk-input::placeholder { color: #b3b0a6; }
+
+/* unit-toggle segmented control */
+.mk-seg { display: inline-flex; border: 1px solid var(--mk-border); border-radius: 10px; overflow: hidden; background: #fff; }
+.mk-seg button { font-family: var(--mk-font); font-size: 13px; font-weight: 500; padding: 9px 14px; border: none;
+  background: transparent; color: var(--mk-grey); cursor: pointer; white-space: nowrap; }
+.mk-seg button.on { background: var(--mk-accent); color: #241a05; font-weight: 600; }
+
+/* ---- step header (Setup · Choose · Plan) ---- */
+.mk-steps { display: flex; align-items: center; gap: 0; }
+.mk-step { display: flex; align-items: center; gap: 10px; }
+.mk-step .num { width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center;
+  font-size: 13px; font-weight: 600; font-family: var(--mk-mono); }
+.mk-step.active .num { background: var(--mk-accent); color: #241a05; }
+.mk-step.done .num { background: var(--mk-accent); color: #241a05; }
+.mk-step.todo .num { background: transparent; color: var(--mk-grey); border: 1.5px solid rgba(255,255,255,0.25); }
+.mk-step .lbl { font-size: 14px; font-weight: 500; }
+.mk-step.active .lbl { color: #fff; }
+.mk-step.todo .lbl { color: var(--mk-grey); }
+.mk-step.done .lbl { color: #cfd8e2; }
+.mk-step-sep { width: 40px; height: 1px; background: rgba(255,255,255,0.15); margin: 0 16px; }
+
+/* ---- pills / tags ---- */
+.mk-tag { display: inline-flex; align-items: center; padding: 4px 11px; border-radius: 999px;
+  font-size: 12.5px; font-weight: 500; background: var(--mk-accent-tint); color: var(--mk-accent-ink); }
+
+/* ---- stat row (landing) ---- */
+.mk-stat-n { font-size: 16px; font-weight: 700; color: #fff; letter-spacing: -0.01em; }
+.mk-stat-l { font-size: 13px; color: #9DB0C4; margin-top: 2px; }
+.mk-stat-s { font-size: 12px; color: #5f7386; }
