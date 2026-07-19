@@ -1,3 +1,4 @@
+import React from "react";
 import { useState, useEffect } from "react";
 import MKLogo from "../components/MKLogo";
 import BackButton from "../components/BackButton";
@@ -92,6 +93,17 @@ export default function Wizard({ initialTar = null, initialMode = "upload", onBu
   const [showAdv, setShowAdv] = useState(false);
   const [threshold, setThreshold] = useState(65);
   const [freqK, setFreqK] = useState(3);
+  const [showPricing, setShowPricing] = useState(false);
+  const [priceOverrides, setPriceOverrides] = useState({});   // {channel_key: {value, basis}}
+  function setChannelPrice(key, basis, raw) {
+    setPriceOverrides((prev) => {
+      const next = { ...prev };
+      const v = String(raw).trim();
+      if (v === "") { delete next[key]; }
+      else { const n = Number(v); if (!Number.isNaN(n)) next[key] = { value: n, basis }; }
+      return next;
+    });
+  }
 
   // BYO key
   const [apiKey, setApiKey] = useState("");
@@ -130,6 +142,7 @@ export default function Wizard({ initialTar = null, initialMode = "upload", onBu
       campaign_code: `MKC-${Date.now().toString(36).toUpperCase()}`,
       ...(apiKey.trim() ? { api_key: apiKey.trim() } : {}),
       ...(forbiddenChannels.length ? { user_forbidden_channels: forbiddenChannels } : {}),
+      ...(Object.keys(priceOverrides).length ? { pricing_overrides: priceOverrides } : {}),
     };
     if (tar) {
       return { ...base, tar, ...(company.trim() ? { company: company.trim() } : {}) };
@@ -394,6 +407,52 @@ export default function Wizard({ initialTar = null, initialMode = "upload", onBu
                     <div>
                       <label className="mk-label">Effective frequency (K)</label>
                       <input className="mk-input" type="number" value={freqK} onChange={(e) => setFreqK(e.target.value)} />
+                    </div>
+                    <div style={{ gridColumn: "1 / -1", marginTop: 4 }}>
+                      <button className="mk-btn mk-btn-ghost-ink" style={{ fontSize: 13, padding: "8px 14px" }}
+                        onClick={() => setShowPricing((s) => !s)} type="button">
+                        {showPricing ? "− Hide" : "+ Adjust"} channel pricing
+                      </button>
+                      {showPricing && (
+                        <div style={{ marginTop: 12 }}>
+                          <p className="mk-hint" style={{ marginBottom: 10 }}>
+                            Override the default rate for any channel with your real vendor rates. Blank = use the conservative rulebook default. You edit the amount only; the billing basis is fixed per channel.
+                          </p>
+                          {["digital", "non_digital"].map((grp) => {
+                            const rows = allChannels.filter((c) => c.group === grp);
+                            if (!rows.length) return null;
+                            return (
+                              <div key={grp} style={{ marginBottom: 14 }}>
+                                <div className="mk-eyebrow" style={{ marginBottom: 8 }}>{grp === "digital" ? "Digital" : "Non-digital"}</div>
+                                <div style={{ display: "grid", gridTemplateColumns: "1fr auto", gap: "8px 12px", alignItems: "center" }}>
+                                  {rows.map((c) => {
+                                    const cost = c.cost || {};
+                                    const ov = priceOverrides[c.key];
+                                    return (
+                                      <React.Fragment key={c.key}>
+                                        <div style={{ fontSize: 13 }}>
+                                          {c.label}
+                                          <span style={{ color: "var(--mk-muted)", marginLeft: 6, fontSize: 12 }}>
+                                            {cost.unit_label || ""}{c.coverage_percent ? ` · reaches ~${c.coverage_percent}% per send` : ""}
+                                          </span>
+                                        </div>
+                                        <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+                                          <span style={{ color: "var(--mk-muted)", fontSize: 13 }}>$</span>
+                                          <input className="mk-input mk-mono" style={{ width: 96, padding: "6px 8px", fontSize: 13 }}
+                                            type="number" step="0.01" min="0"
+                                            placeholder={String(cost.value ?? 0)}
+                                            value={ov ? ov.value : ""}
+                                            onChange={(e) => setChannelPrice(c.key, cost.basis || "cpm", e.target.value)} />
+                                        </div>
+                                      </React.Fragment>
+                                    );
+                                  })}
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
