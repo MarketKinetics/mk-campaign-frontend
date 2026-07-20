@@ -7,6 +7,7 @@ import Wizard from "./pages/Wizard";
 import Choose from "./pages/Choose";
 import Plan from "./pages/Plan";
 import { buildCandidates, selectCandidate, finalizePlan } from "./api/client";
+import { Analytics } from "@vercel/analytics/react";
 
 // Linear campaign flow with a history stack so every page's top-left Back button
 // goes exactly one page back along the path actually taken.
@@ -102,6 +103,7 @@ export default function App() {
               onBack={canGoBack ? goBack : null}
               onRestart={() => { setBuilt(null); setSeedTar(null); setDemoObj(null); setDemoPlanUrl(null); setHistory([]); setScreen("landing"); }} />
       )}
+      <Analytics />
     </>
   );
 }

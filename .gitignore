@@ -11,3 +11,6 @@ dist
 *.predemo_bak
 *.predemoroute_bak
 apply_*.py
+
+*.preanalytics_bak
+add_analytics.py
