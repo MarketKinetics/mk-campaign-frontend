@@ -11,13 +11,12 @@ function setSessionToken(t) {
 }
 
 // Mint a session token once (stored in localStorage). Safe to call repeatedly.
-export async function ensureSession() {
-  let t = getSessionToken();
-  if (t) return t;
+export async function ensureSession(force = false) {
+  if (!force) { const t = getSessionToken(); if (t) return t; }
   try {
     const r = await fetch(`${BASE}/campaign/session`, { method: "POST" });
     if (r.ok) { const d = await r.json(); if (d.session_token) { setSessionToken(d.session_token); return d.session_token; } }
-  } catch { /* backend may not have the endpoint yet; proceed unauthenticated */ }
+  } catch { /* network/cold-start; caller proceeds and may retry */ }
   return null;
 }
 
@@ -55,9 +54,21 @@ export async function getChannels() {
 }
 
 // Campaign flow — build-candidates sends the session token as a header for free-run tracking.
-export function buildCandidates(payload) {
-  const token = getSessionToken();
-  return post("/campaign/build-candidates", payload, token ? { "x-mk-session": token } : {});
+export async function buildCandidates(payload) {
+  // Guarantee a session exists before sending (fixes 402 on fresh/incognito/phone loads
+  // where nothing minted a token yet).
+  let token = await ensureSession();
+  try {
+    return await post("/campaign/build-candidates", payload, token ? { "x-mk-session": token } : {});
+  } catch (err) {
+    // 402 = backend doesn't recognize the token (e.g. ephemeral session DB wiped on a
+    // Railway restart). Re-mint once and retry so the user never sees it.
+    if (err && err.status === 402) {
+      token = await ensureSession(true);
+      return await post("/campaign/build-candidates", payload, token ? { "x-mk-session": token } : {});
+    }
+    throw err;
+  }
 }
 export function selectCandidate(msw_id, candidate_id) { return post("/campaign/select", { msw_id, candidate_id }); }
 export function finalizePlan(msw_id) { return post("/campaign/finalize", { msw_id }); }
