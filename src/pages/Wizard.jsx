@@ -46,8 +46,32 @@ function numStyle(state) {
   return {};
 }
 
-export default function Wizard({ initialTar = null, initialMode = "upload", onBuild, busy, needsKey = false, onExit, onBack }) {
+export default function Wizard({ initialTar = null, initialMode = "upload", onBuild, busy, needsKey = false, onExit, onBack, demo = null, onDemoComplete }) {
   const [step, setStep] = useState(0);
+  // DEMO MODE: pre-fill every field from the example and lock the form; Build shows a canned plan.
+  useEffect(() => {
+    if (!demo || !demo.prefill) return;
+    const d = demo.prefill;
+    if (d.taMode !== undefined) setTaMode(d.taMode);
+    if (d.tar !== undefined) setTar(d.tar);
+    if (d.tarName !== undefined) setTarName(d.tarName);
+    if (d.describeTA !== undefined) setDescribeTA(d.describeTA);
+    if (d.describeObj !== undefined) setDescribeObj(d.describeObj);
+    if (d.pickedChannels !== undefined) setPickedChannels(d.pickedChannels);
+    if (d.action !== undefined) setAction(d.action);
+    if (d.productWhat !== undefined) setProductWhat(d.productWhat);
+    if (d.company !== undefined) setCompany(d.company);
+    if (d.objVal !== undefined) setObjVal(d.objVal);
+    if (d.objUnit !== undefined) setObjUnit(d.objUnit);
+    if (d.audience !== undefined) setAudience(d.audience);
+    if (d.campaignType !== undefined) setCampaignType(d.campaignType);
+    if (d.forbiddenChannels !== undefined) setForbiddenChannels(d.forbiddenChannels);
+    if (d.budgetVal !== undefined) setBudgetVal(d.budgetVal);
+    if (d.durMode !== undefined) setDurMode(d.durMode);
+    if (d.durVal !== undefined) setDurVal(d.durVal);
+    if (d.threshold !== undefined) setThreshold(d.threshold);
+    if (d.freqK !== undefined) setFreqK(d.freqK);
+  }, [demo]);
 
   // audience & objective
   const [taMode, setTaMode] = useState(initialTar ? "upload" : initialMode);
@@ -175,8 +199,16 @@ export default function Wizard({ initialTar = null, initialMode = "upload", onBu
         <Dots step={step} />
 
         <div className="mk-card">
+          {demo && (
+            <div style={{ marginBottom: 16, padding: "10px 14px", borderRadius: 10,
+                          background: "var(--mk-accent-tint, #FDF3DC)", border: "1px solid var(--mk-accent, #F5B841)",
+                          fontSize: 13, color: "var(--mk-ink, #1B2733)" }}>
+              <strong>Guided demo.</strong> These fields are a pre-filled example — click <em>Continue →</em> through the steps, then <em>Build</em> to see the finished plan.
+            </div>
+          )}
           <div className="mk-eyebrow">Step {step + 1} of 3</div>
           <h2 className="mk-h2" style={{ marginTop: 4, marginBottom: 20 }}>{STEP_TITLES[step]}</h2>
+          <div style={demo ? { pointerEvents: "none", opacity: 0.9 } : undefined}>
 
           {/* ---------- STEP 1: Audience & Objective ---------- */}
           {step === 0 && (
@@ -522,6 +554,7 @@ export default function Wizard({ initialTar = null, initialMode = "upload", onBu
             </div>
           )}
 
+          </div>{/* /demo lock wrapper */}
           {/* nav buttons */}
           <div style={{ display: "flex", justifyContent: "space-between", marginTop: 26 }}>
             <button className="mk-btn mk-btn-ghost-ink"
@@ -529,11 +562,11 @@ export default function Wizard({ initialTar = null, initialMode = "upload", onBu
               ← {step === 0 ? "Exit" : "Back"}
             </button>
             {step < 2 ? (
-              <button className="mk-btn mk-btn-primary" disabled={step === 0 && !step1ok}
+              <button className="mk-btn mk-btn-primary" disabled={!demo && step === 0 && !step1ok}
                 onClick={() => setStep((s) => s + 1)}>Continue →</button>
             ) : (
-              <button className="mk-btn mk-btn-primary" disabled={!canBuild}
-                onClick={() => onBuild(buildPayload())}>
+              <button className="mk-btn mk-btn-primary" disabled={!demo && !canBuild}
+                onClick={() => (demo ? onDemoComplete?.(demo.planUrl) : onBuild(buildPayload()))}>
                 {busy ? "Building…" : "Build candidates →"}
               </button>
             )}

@@ -5,3 +5,9 @@ dist
 .env.local
 *.bak
 .DS_Store
+.env*.local
+
+*.presession_bak
+*.predemo_bak
+*.predemoroute_bak
+apply_*.py

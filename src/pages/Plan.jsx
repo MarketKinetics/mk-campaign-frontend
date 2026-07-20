@@ -8,8 +8,8 @@ import { planHtmlUrl, planDownloadUrl, planJsonUrl } from "../api/client";
 // (the light/cream document we built). We host it in an iframe so the polished
 // deliverable renders exactly as designed, and offer back / open-in-new-tab /
 // download (HTML | JSON) / restart in one top-right cluster.
-export default function Plan({ campaignCode, onRestart, onBack }) {
-  const url = campaignCode ? planHtmlUrl(campaignCode) : null;
+export default function Plan({ campaignCode, onRestart, onBack, staticUrl = null }) {
+  const url = staticUrl || (campaignCode ? planHtmlUrl(campaignCode) : null);
   const [dlOpen, setDlOpen] = useState(false);
 
   const dlItem = {

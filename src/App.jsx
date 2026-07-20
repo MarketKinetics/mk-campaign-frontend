@@ -17,6 +17,8 @@ export default function App() {
   const [error, setError] = useState("");
 
   const [seedTar, setSeedTar] = useState(null);
+  const [demoObj, setDemoObj] = useState(null);
+  const [demoPlanUrl, setDemoPlanUrl] = useState(null);
   const [wizardMode, setWizardMode] = useState("upload");
   const [built, setBuilt] = useState(null);
   const [campaignCode, setCampaignCode] = useState(null);
@@ -63,29 +65,31 @@ export default function App() {
 
       {screen === "landing" && (
         <Landing
-          onStart={() => { setSeedTar(null); nav("entry"); }}
+          onStart={() => { setSeedTar(null); setDemoObj(null); setDemoPlanUrl(null); nav("entry"); }}
           onDemo={() => nav("demo")} />
       )}
 
       {screen === "entry" && (
         <Entry
-          onChoose={(mode) => { setWizardMode(mode); setSeedTar(null); nav("wizard"); }}
+          onChoose={(mode) => { setWizardMode(mode); setSeedTar(null); setDemoObj(null); nav("wizard"); }}
           onBack={canGoBack ? goBack : null}
           onExit={() => setScreen("landing")} />
       )}
 
       {screen === "demo" && (
         <Demo
-          onLaunch={(ex) => { setSeedTar(ex?.tar || null); nav("wizard"); }}
-          onUpload={() => { setSeedTar(null); setWizardMode("upload"); nav("wizard"); }}
+          onLaunchDemo={(d) => { setDemoObj(d); setDemoPlanUrl(null); nav("wizard"); }}
           onBack={canGoBack ? goBack : null}
-          onExit={() => setScreen("landing")} />
+          onExit={() => { setDemoObj(null); nav("entry"); }} />
       )}
 
       {screen === "wizard" && (
-        <Wizard initialTar={seedTar} initialMode={wizardMode} onBuild={handleBuild} busy={busy}
+        <Wizard initialTar={demoObj ? demoObj.prefill.tar : seedTar} initialMode={wizardMode}
+                onBuild={handleBuild} busy={busy}
+                demo={demoObj}
+                onDemoComplete={(planUrl) => { setDemoPlanUrl(planUrl); nav("plan"); }}
                 onBack={canGoBack ? goBack : null}
-                onExit={() => setScreen("landing")} />
+                onExit={() => { setDemoObj(null); setScreen("landing"); }} />
       )}
 
       {screen === "choose" && (
@@ -94,9 +98,9 @@ export default function App() {
       )}
 
       {screen === "plan" && (
-        <Plan campaignCode={campaignCode}
+        <Plan campaignCode={campaignCode} staticUrl={demoPlanUrl}
               onBack={canGoBack ? goBack : null}
-              onRestart={() => { setBuilt(null); setSeedTar(null); setHistory([]); setScreen("landing"); }} />
+              onRestart={() => { setBuilt(null); setSeedTar(null); setDemoObj(null); setDemoPlanUrl(null); setHistory([]); setScreen("landing"); }} />
       )}
     </>
   );
